@@ -4,4 +4,4 @@ by end-users in a file, or simple database, called a wallet. The digital keys in
 are completely independent of the bitcoin protocol and can be generated and managed by the user’s
 wallet software without reference to the blockchain or access to the Internet. Keys enable many of
 the interesting properties of bitcoin, including de- centralized trust and control, ownership
-attestation and the cryptographic-proof security model.
+attestation and the cryptographi.

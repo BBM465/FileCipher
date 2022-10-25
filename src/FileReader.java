@@ -29,7 +29,6 @@ public class FileReader {
            System.out.println("Key file is not found!");
            e.printStackTrace();
         }
-        System.out.println(key.getInitializationVector() + " " + key.getKey() + " " + key.getNonce());
         return key;
     }
 
@@ -51,7 +50,6 @@ public class FileReader {
             System.out.println("Input file is not found!");
             e.printStackTrace();
         }
-        System.out.println(text);
         return text;
     }
 }

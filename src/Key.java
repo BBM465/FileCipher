@@ -1,18 +1,23 @@
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class Key {
     private String initializationVector;
     private String key;
     private String nonce;
 
 
-    public String getInitializationVector() {
-        return initializationVector;
+    public byte[] getInitializationVector() {
+        return initializationVector.getBytes();
     }
 
     public String getKey() {
         return key;
     }
 
-    public String getNonce() {
+    public String getNonce(){
         return nonce;
     }
 
@@ -27,4 +32,17 @@ public class Key {
     public void setKey(String key) {
         this.key = key;
     }
+
+    public byte[] getKeyBytes() {
+        // shuffle the characters of the key
+        List<String> letters = Arrays.asList(key.split(""));
+        Collections.shuffle(letters);
+        StringBuilder shuffled = new StringBuilder();
+        for (String letter : letters)
+            shuffled.append(letter);
+        // get the first 8 bytes of the shuffled key
+        return Arrays.copyOfRange(shuffled.toString().getBytes(), 0,8 );
+    }
+
 }
+

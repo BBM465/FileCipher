@@ -1,7 +1,5 @@
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class Key {
     private String initializationVector;
@@ -10,7 +8,7 @@ public class Key {
 
 
     public byte[] getInitializationVector() {
-        return initializationVector.getBytes();
+        return initializationVector.getBytes(StandardCharsets.UTF_8);
     }
 
     public String getKey() {
@@ -34,14 +32,7 @@ public class Key {
     }
 
     public byte[] getKeyBytes() {
-        // shuffle the characters of the key
-        List<String> letters = Arrays.asList(key.split(""));
-        Collections.shuffle(letters);
-        StringBuilder shuffled = new StringBuilder();
-        for (String letter : letters)
-            shuffled.append(letter);
-        // get the first 8 bytes of the shuffled key
-        return Arrays.copyOfRange(shuffled.toString().getBytes(), 0,8 );
+        return Arrays.copyOfRange(key.getBytes(StandardCharsets.UTF_8), 0, 8);
     }
 
 }

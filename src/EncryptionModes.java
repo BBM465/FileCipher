@@ -1,9 +1,7 @@
-import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class EncryptionModes {
@@ -15,10 +13,12 @@ public class EncryptionModes {
         this.key = key;
     }
 
-    public byte[] Padding(){
-       List<Byte> inputBytes = convertBytesToList(input.getBytes());
-       System.out.println(inputBytes.size());
-       byte[] byteArray = new byte[inputBytes.size()];
+    public byte[] GetBytesOfCipherText(){
+        return input.getBytes(StandardCharsets.UTF_8);
+    }
+
+    public byte[] PaddingToPlainText(){
+       List<Byte> inputBytes = convertBytesToList(input.getBytes(StandardCharsets.UTF_8));
        if (inputBytes.size() % 8 != 0){
            int remainingBytes = (8 - inputBytes.size() % 8); // how many bytes we need to create a whole block
            // first byte is filled with 0x80
@@ -29,37 +29,14 @@ public class EncryptionModes {
                remainingBytes -= 1;
            }
        }
+       byte[] byteArray = new byte[inputBytes.size()];
        for (int i = 0; i < inputBytes.size(); i++){
            byteArray[i] = inputBytes.get(i);
        }
        return byteArray;
     }
 
-    public byte[] CBC() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        byte[] inputBytes = Padding(); // apply padding to the input
-        byte[] keyBytes = key.getKeyBytes(); // get 8 bytes from the key string to use in DES
-        SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
-        // activate DES cipher with ECB encryption mode
-        Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        byte[] encrypted = new byte[inputBytes.length];
-        byte[] iv = key.getInitializationVector(); // get initialization vector
-        for (int i = 0; i < inputBytes.length; i += 8){
-            byte[] block = Arrays.copyOfRange(inputBytes, i, i + 8);
-            byte[] xorBlock = new byte[block.length]; // it will be the next initialization vector
-            for (int j = 0; j < block.length; j++){
-                xorBlock[j] = (byte) (block[j] ^ iv[j]);
-            }
-            byte[] cipherBlock = cipher.doFinal(xorBlock);
-            iv = Arrays.copyOf(cipherBlock, cipherBlock.length); //  update iv
-            for (int k = i; k < cipherBlock.length + i; k++){
-                encrypted[k] = cipherBlock[k - i];
-            }
-        }
-        return encrypted;
-    }
-
-    private static List<Byte> convertBytesToList(byte[] bytes) {
+    public static List<Byte> convertBytesToList(byte[] bytes) {
         final List<Byte> list = new ArrayList<>();
         for (byte b : bytes) {
             list.add(b);
@@ -67,5 +44,26 @@ public class EncryptionModes {
         return list;
     }
 
+    public static byte[] convert2Dto1DArray(byte[][] array){
+        byte[] newArray = new byte[array.length * array[0].length];
+        for (int i = 0; i < array.length; i++) {
+            for (int j = 0; j < array[i].length; j++) {
+                newArray[i + (j * array.length)] = array[i][j];
+            }
+        }
+        return newArray;
+    }
+
+    public static void writeToFile(String text, String fileName){
+        try {
+            FileWriter writer = new FileWriter(fileName);
+            writer.write(text);
+            writer.close();
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
    
 }

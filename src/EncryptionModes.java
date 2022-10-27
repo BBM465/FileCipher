@@ -65,5 +65,19 @@ public class EncryptionModes {
             e.printStackTrace();
         }
     }
+
+    public static byte[] removePadding(byte[] cipherText){
+        List<Byte> bytes = new ArrayList<Byte>();
+        int i = 0;
+        while (cipherText[i] != -128){
+            bytes.add(cipherText[i]);
+            i++;
+        }
+        byte[] newCipher = new byte[bytes.size()];
+        for(int j = 0; j < newCipher.length; j++){
+            newCipher[j] = bytes.get(j);
+        }
+        return newCipher;
+    }
    
 }

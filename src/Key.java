@@ -1,39 +1,37 @@
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class Key {
-    private String initializationVector;
-    private String key;
-    private String nonce;
+    private byte[] initializationVector;
+    private byte[] key;
+    private byte[] nonce;
 
 
     public byte[] getInitializationVector() {
-        return initializationVector.getBytes(StandardCharsets.UTF_8);
+        return initializationVector;
     }
 
-    public String getKey() {
+    public byte[] getKey() {
         return key;
     }
 
-    public String getNonce(){
+    public byte[] getNonce(){
         return nonce;
     }
 
-    public void setInitializationVector(String initializationVector) {
+    public void setInitializationVector(byte[] initializationVector) {
         this.initializationVector = initializationVector;
     }
 
-    public void setNonce(String nonce) {
+    public void setNonce(byte[] nonce) {
         this.nonce = nonce;
     }
 
-    public void setKey(String key) {
+    public void setKey(byte[] key) {
         this.key = key;
     }
 
     public byte[] getKeyBytes() {
-        return Arrays.copyOfRange(key.getBytes(StandardCharsets.UTF_8), 0, 8);
+        return Arrays.copyOfRange(key, 0, 8);
     }
 
 }
-

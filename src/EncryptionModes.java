@@ -6,35 +6,37 @@ import java.util.List;
 
 public class EncryptionModes {
     private final Key key;
-    private final String input;
+    private final byte[] input;
 
-    public EncryptionModes(String input, Key key) {
+    public EncryptionModes(byte[] input, Key key) {
         this.input = input;
         this.key = key;
     }
 
-    public byte[] GetBytesOfCipherText(){
-        return input.getBytes(StandardCharsets.UTF_8);
+    public byte[] GetBytesOfCipherText() {
+        return input;
     }
 
-    public byte[] PaddingToPlainText(){
-       List<Byte> inputBytes = convertBytesToList(input.getBytes(StandardCharsets.UTF_8));
-       if (inputBytes.size() % 8 != 0){
-           int remainingBytes = (8 - inputBytes.size() % 8); // how many bytes we need to create a whole block
-           // first byte is filled with 0x80
-           inputBytes.add((byte) 0x80);
-           remainingBytes = remainingBytes - 1;
-           while (remainingBytes > 0){
-               inputBytes.add((byte) 0x00); // remaining bytes are filled with 0x00
-               remainingBytes -= 1;
-           }
-       }
-       byte[] byteArray = new byte[inputBytes.size()];
-       for (int i = 0; i < inputBytes.size(); i++){
-           byteArray[i] = inputBytes.get(i);
-       }
-       return byteArray;
+
+    public byte[] PaddingToPlainText() {
+        List<Byte> inputBytes = convertBytesToList(input);
+        if (inputBytes.size() % 8 != 0) {
+            int remainingBytes = (8 - inputBytes.size() % 8); // how many bytes we need to create a whole block
+            // first byte is filled with 0x80
+            inputBytes.add((byte) 0x80);
+            remainingBytes = remainingBytes - 1;
+            while (remainingBytes > 0) {
+                inputBytes.add((byte) 0x00); // remaining bytes are filled with 0x00
+                remainingBytes -= 1;
+            }
+        }
+        byte[] byteArray = new byte[inputBytes.size()];
+        for (int i = 0; i < inputBytes.size(); i++) {
+            byteArray[i] = inputBytes.get(i);
+        }
+        return byteArray;
     }
+
 
     public static List<Byte> convertBytesToList(byte[] bytes) {
         final List<Byte> list = new ArrayList<>();
@@ -44,17 +46,15 @@ public class EncryptionModes {
         return list;
     }
 
-    public static byte[] convert2Dto1DArray(byte[][] array){
+    public static byte[] convert2Dto1DArray(byte[][] array) {
         byte[] newArray = new byte[array.length * array[0].length];
         for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                newArray[i + (j * array.length)] = array[i][j];
-            }
+            System.arraycopy(array[i], 0, newArray, (i * array[i].length), array[i].length);
         }
         return newArray;
     }
 
-    public static void writeToFile(String text, String fileName){
+    public static void writeToFile(String text, String fileName) {
         try {
             FileWriter writer = new FileWriter(fileName);
             writer.write(text);
@@ -66,18 +66,18 @@ public class EncryptionModes {
         }
     }
 
-    public static byte[] removePadding(byte[] cipherText){
+    public static byte[] removePadding(byte[] cipherText) {
         List<Byte> bytes = new ArrayList<Byte>();
         int i = 0;
-        while (cipherText[i] != -128){
+        while (cipherText[i] != -128) {
             bytes.add(cipherText[i]);
             i++;
         }
         byte[] newCipher = new byte[bytes.size()];
-        for(int j = 0; j < newCipher.length; j++){
+        for (int j = 0; j < newCipher.length; j++) {
             newCipher[j] = bytes.get(j);
         }
         return newCipher;
     }
-   
 }
+

@@ -1,6 +1,11 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class FileReader {
     private final String keyFile;
@@ -13,43 +18,123 @@ public class FileReader {
     }
 
     public Key ReadKeyFile(){
+
         Key key = new Key();
+        List<Integer> byteList =new ArrayList<>();
         try{
-            File file = new File(keyFile);
-            Scanner scanner = new Scanner(file);
-            scanner.useDelimiter(" - ");
-            while(scanner.hasNext()){
-                key.setInitializationVector(scanner.next());
-                key.setKey(scanner.next());
-                key.setNonce(scanner.next());
+            FileInputStream fin=new FileInputStream(keyFile);
+            int i=0;
+
+            while(true){
+                i=fin.read();
+                if(i!=32&&i!=-1)
+                {
+                    byteList.add(i);
+
+                }else{
+                    break;
+                }
             }
-            scanner.close();
-        }
-        catch (FileNotFoundException e){
-           System.out.println("Key file is not found!");
-           e.printStackTrace();
-        }
+            Iterator<Integer> iterator = byteList.iterator();
+            byte[] byteArray =new byte[byteList.size()];
+            int index=0;
+            while(iterator.hasNext())
+            {
+                Integer j = iterator.next();
+                byteArray[index] = j.byteValue();
+                index++;
+            }
+            key.setInitializationVector(byteArray);
+
+            byteList.clear();
+            fin.read();
+            fin.read();
+
+            index=0;
+            while(true){
+                i=fin.read();
+                if(i!=32&&i!=-1)
+                {
+                    byteList.add(i);
+
+
+                }else{
+                    break;
+                }
+
+
+
+            }
+            iterator = byteList.iterator();
+            byte[] byteArray2 =new byte[byteList.size()];
+            while(iterator.hasNext())
+            {
+                Integer j = iterator.next();
+                byteArray2[index] = j.byteValue();
+                index++;
+            }
+            key.setKey(byteArray2);
+
+            byteList.clear();
+            fin.read();
+            fin.read();
+            index=0;
+            while(true){
+                i=fin.read();
+                if(i!=32&&i!=-1)
+                {
+                    byteList.add(i);
+
+                }else{
+                    break;
+                }
+
+
+
+
+            }
+            iterator = byteList.iterator();
+            byte[] byteArray3 =new byte[byteList.size()];
+            while(iterator.hasNext())
+            {
+                Integer j = iterator.next();
+                byteArray3[index] = j.byteValue();
+                index++;
+            }
+            key.setNonce(byteArray3);
+
+        }catch(Exception e){System.out.println(e);}
+
+
         return key;
     }
 
-    public String ReadInputFile(){
-        String text = "";
+    public byte[] ReadInputFile() throws IOException {
+        List<Integer> byteList =new ArrayList<>();
         try{
-            File file = new File(inputFile);
-            Scanner scanner = new Scanner(file);
-            while(scanner.hasNextLine()){
-                String line = scanner.nextLine();
-                text = text.concat(line);
-                if (scanner.hasNextLine()){
-                   text = text.concat("\n");
-                }
+            FileInputStream fin=new FileInputStream(inputFile);
+            int i=0;
+            System.out.println(i);
+            while((i=fin.read())!=-1){
+                byteList.add(i);
+
             }
-            scanner.close();
+            fin.close();
+        }catch(Exception e){
+            System.out.println(e);
         }
-        catch (FileNotFoundException e){
-            System.out.println("Input file is not found!");
-            e.printStackTrace();
+        Iterator<Integer> iterator = byteList.iterator();
+        byte[] byteArray =new byte[byteList.size()];
+        int index=0;
+        while(iterator.hasNext())
+        {
+            Integer i = iterator.next();
+            byteArray[index] = i.byteValue();
+            index++;
         }
-        return text;
+
+
+
+        return byteArray;
     }
 }

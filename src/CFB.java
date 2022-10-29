@@ -7,11 +7,11 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class CBC extends EncryptionModes{
+public class CFB extends EncryptionModes {
     private final byte[] keyBytes;
     private final byte[] iv;
 
-    public CBC(byte[] input, Key key) {
+    public CFB(byte[] input, Key key) {
         super(input, key);
         this.keyBytes = key.getKeyBytes();
         this.iv = key.getInitializationVector();
@@ -19,63 +19,52 @@ public class CBC extends EncryptionModes{
 
     public void EncryptWithDES() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] plainTextBytes = PaddingToPlainText(); // convert the plaintext into its byte representation and apply padding to the representation
-        System.out.println("plaintext bytes"+Arrays.toString(plainTextBytes));
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
         // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
         byte[] vector = Arrays.copyOf(iv, 8); // get the initialization vector
-        System.out.println(vector.length+"!!");
         byte[][] encrypted = new byte[plainTextBytes.length / 8][];
         int counter = 0;
         for (int i = 0; i < plainTextBytes.length; i += 8){
             byte[] block = Arrays.copyOfRange(plainTextBytes, i, i + 8);
-            byte[] xorBlock = new byte[block.length];
+            byte[] feedback = cipher.doFinal(vector);
+            byte[] encryptedPart = new byte[block.length];
             for (int j = 0; j < block.length; j++){
-                xorBlock[j] = (byte) (block[j] ^ vector[j]);
-
+                encryptedPart[j] = (byte) (block[j] ^ feedback[j]);
             }
-            byte[] encryptedPart= cipher.doFinal(xorBlock);
-            vector = Arrays.copyOf(encryptedPart, encryptedPart.length); //  update iv
+            vector = Arrays.copyOf(feedback, feedback.length); // update the iv
             encrypted[counter] = encryptedPart;
             counter++;
         }
-
-        try (FileOutputStream stream = new FileOutputStream("cbc_encrypt_text.txt")) {
+        try (FileOutputStream stream = new FileOutputStream("cfb_encrypt_text.txt")) {
             stream.write(convert2Dto1DArray(encrypted));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
-
-
     }
 
     public void DecryptWithDES() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] cipherTextBytes = GetBytesOfCipherText(); // convert the ciphertext into its byte representation
-        System.out.println("ciphertext bytes"+Arrays.toString(cipherTextBytes));
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
-        // activate DES cipher with ECB decryption mode
+        // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-        byte[] ecb = cipher.doFinal(cipherTextBytes);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
         byte[] vector = Arrays.copyOf(iv, 8); // get the initialization vector
         byte[][] decrypted = new byte[cipherTextBytes.length / 8][];
         int counter = 0;
         for (int i = 0; i < cipherTextBytes.length; i += 8){
-            byte[] block = Arrays.copyOfRange(cipherTextBytes, i, i + 8); // get 8 byte block
-            byte[] decryptBlock = cipher.doFinal(block); //decrypt the current block
+            byte[] block = Arrays.copyOfRange(cipherTextBytes, i, i + 8);
+            byte[] feedback = cipher.doFinal(vector); // generate pseudorandom number by encrypting the initialization vector
             byte[] plainTextBlock = new byte[block.length];
-            for (int j = 0; j < block.length; j++){
+            for (int j = 0; j < plainTextBlock.length; j++){
                 // block of plain text
-                plainTextBlock[j] = (byte) (decryptBlock[j] ^ vector[j]); // xor decrypted block with the initialization vector
+                plainTextBlock[j] = (byte) (block[j] ^ feedback[j]); // cipher text xored with the pseudorandom
             }
-            vector = Arrays.copyOf(block, block.length); //  update iv with current ciphertext
+            vector = Arrays.copyOf(feedback, feedback.length); //  update iv with current pseudorandom number
             decrypted[counter] = plainTextBlock; // fill out the plain text bytes
             counter++;
         }
-        System.out.println("decrypted bytes"+Arrays.toString(convert2Dto1DArray(decrypted)));
-        writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), "cbc_decrypt_text.txt");
+        writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), "cfb_decrypt_text.txt");
     }
 }

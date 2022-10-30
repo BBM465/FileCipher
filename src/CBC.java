@@ -19,13 +19,11 @@ public class CBC extends EncryptionModes{
 
     public void EncryptWithDES(Boolean tripleDes, String fileName) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] plainTextBytes = PaddingToPlainText(); // convert the plaintext into its byte representation and apply padding to the representation
-        System.out.println("plaintext bytes"+Arrays.toString(plainTextBytes));
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
         // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
         byte[] vector = Arrays.copyOf(iv, 8); // get the initialization vector
-        System.out.println(vector.length+"!!");
         byte[][] encrypted = new byte[plainTextBytes.length / 8][];
         int counter = 0;
         for (int i = 0; i < plainTextBytes.length; i += 8){

@@ -28,7 +28,6 @@ public class CTR extends EncryptionModes {
         byte nonceCount=0;
         for (int i = 0; i < plainTextBytes.length; i += 8){
             nonce[7]= nonceCount;
-            System.out.println(Arrays.toString(nonce));
             nonceCount++;
             byte[] encryptedPart;
             if(tripleDes){

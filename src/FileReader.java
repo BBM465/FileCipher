@@ -98,7 +98,6 @@ public class FileReader {
         try{
             FileInputStream fin=new FileInputStream(inputFile);
             int i=0;
-            System.out.println(i);
             while((i=fin.read())!=-1){
                 byteList.add(i);
 

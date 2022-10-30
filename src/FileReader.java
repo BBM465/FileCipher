@@ -18,7 +18,6 @@ public class FileReader {
     }
 
     public Key ReadKeyFile(){
-
         Key key = new Key();
         List<Integer> byteList =new ArrayList<>();
         try{
@@ -45,25 +44,18 @@ public class FileReader {
                 index++;
             }
             key.setInitializationVector(byteArray);
-
             byteList.clear();
             fin.read();
             fin.read();
-
             index=0;
             while(true){
                 i=fin.read();
                 if(i!=32&&i!=-1)
                 {
                     byteList.add(i);
-
-
                 }else{
                     break;
                 }
-
-
-
             }
             iterator = byteList.iterator();
             byte[] byteArray2 =new byte[byteList.size()];
@@ -74,7 +66,6 @@ public class FileReader {
                 index++;
             }
             key.setKey(byteArray2);
-
             byteList.clear();
             fin.read();
             fin.read();
@@ -88,10 +79,6 @@ public class FileReader {
                 }else{
                     break;
                 }
-
-
-
-
             }
             iterator = byteList.iterator();
             byte[] byteArray3 =new byte[byteList.size()];
@@ -102,10 +89,7 @@ public class FileReader {
                 index++;
             }
             key.setNonce(byteArray3);
-
         }catch(Exception e){System.out.println(e);}
-
-
         return key;
     }
 
@@ -132,9 +116,6 @@ public class FileReader {
             byteArray[index] = i.byteValue();
             index++;
         }
-
-
-
         return byteArray;
     }
 }

@@ -17,7 +17,7 @@ public class CBC extends EncryptionModes{
         this.iv = key.getInitializationVector();
     }
 
-    public void EncryptWithDES(Boolean tripleDes) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public void EncryptWithDES(Boolean tripleDes, String fileName) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] plainTextBytes = PaddingToPlainText(); // convert the plaintext into its byte representation and apply padding to the representation
         System.out.println("plaintext bytes"+Arrays.toString(plainTextBytes));
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
@@ -49,14 +49,14 @@ public class CBC extends EncryptionModes{
             encrypted[counter] = encryptedPart;
             counter++;
         }
-        try (FileOutputStream stream = new FileOutputStream("cbc_encrypt_text.txt")) {
+        try (FileOutputStream stream = new FileOutputStream(fileName)) {
             stream.write(convert2Dto1DArray(encrypted));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void DecryptWithDES(Boolean tripleDes) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public void DecryptWithDES(Boolean tripleDes, String filename) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] cipherTextBytes = GetBytesOfCipherText(); // convert the ciphertext into its byte representation
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
         // activate DES cipher with ECB decryption mode
@@ -88,6 +88,6 @@ public class CBC extends EncryptionModes{
             decrypted[counter] = plainTextBlock; // fill out the plain text bytes
             counter++;
         }
-        writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), "cbc_decrypt_text.txt");
+        writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), filename);
     }
 }

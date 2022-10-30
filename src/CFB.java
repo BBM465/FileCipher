@@ -17,7 +17,7 @@ public class CFB extends EncryptionModes {
         this.iv = key.getInitializationVector();
     }
 
-    public void EncryptWithDES(Boolean tripleDes) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public void EncryptWithDES(Boolean tripleDes, String fileName) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] plainTextBytes = PaddingToPlainText(); // convert the plaintext into its byte representation and apply padding to the representation
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
         System.out.println("plaintext bytes"+Arrays.toString(plainTextBytes));
@@ -48,14 +48,14 @@ public class CFB extends EncryptionModes {
             encrypted[counter] = encryptedPart;
             counter++;
         }
-        try (FileOutputStream stream = new FileOutputStream("cfb_encrypt_text.txt")) {
+        try (FileOutputStream stream = new FileOutputStream(fileName)) {
             stream.write(convert2Dto1DArray(encrypted));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void DecryptWithDES(Boolean tripleDes) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public void DecryptWithDES(Boolean tripleDes, String fileName) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] cipherTextBytes = GetBytesOfCipherText(); // convert the ciphertext into its byte representation
         System.out.println("ciphertext bytes"+Arrays.toString(cipherTextBytes));
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
@@ -88,6 +88,6 @@ public class CFB extends EncryptionModes {
             counter++;
         }
         System.out.println("ciphertext bytes"+Arrays.toString(convert2Dto1DArray(decrypted)));
-        writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), "cfb_decrypt_text.txt");
+        writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), fileName);
     }
 }

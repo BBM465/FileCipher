@@ -17,9 +17,10 @@ public class CFB extends EncryptionModes {
         this.iv = key.getInitializationVector();
     }
 
-    public void EncryptWithDES() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public void EncryptWithDES(Boolean tripleDes) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] plainTextBytes = PaddingToPlainText(); // convert the plaintext into its byte representation and apply padding to the representation
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
+        System.out.println("plaintext bytes"+Arrays.toString(plainTextBytes));
         // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
@@ -28,12 +29,22 @@ public class CFB extends EncryptionModes {
         int counter = 0;
         for (int i = 0; i < plainTextBytes.length; i += 8){
             byte[] block = Arrays.copyOfRange(plainTextBytes, i, i + 8);
-            byte[] feedback = cipher.doFinal(vector);
+            byte[] feedback;
+            if(tripleDes){
+                byte[] firstStep = cipher.doFinal(vector);
+                cipher.init(Cipher.DECRYPT_MODE,secretKey);
+                byte[] secondStep = cipher.doFinal(firstStep);
+                cipher.init(Cipher.ENCRYPT_MODE,secretKey);
+                feedback= cipher.doFinal(secondStep);
+            }else{
+                feedback = cipher.doFinal(vector);
+            }
+
             byte[] encryptedPart = new byte[block.length];
             for (int j = 0; j < block.length; j++){
                 encryptedPart[j] = (byte) (block[j] ^ feedback[j]);
             }
-            vector = Arrays.copyOf(feedback, feedback.length); // update the iv
+            vector = Arrays.copyOf(encryptedPart, encryptedPart.length); // update the iv
             encrypted[counter] = encryptedPart;
             counter++;
         }
@@ -44,8 +55,9 @@ public class CFB extends EncryptionModes {
         }
     }
 
-    public void DecryptWithDES() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public void DecryptWithDES(Boolean tripleDes) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] cipherTextBytes = GetBytesOfCipherText(); // convert the ciphertext into its byte representation
+        System.out.println("ciphertext bytes"+Arrays.toString(cipherTextBytes));
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
         // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
@@ -55,16 +67,27 @@ public class CFB extends EncryptionModes {
         int counter = 0;
         for (int i = 0; i < cipherTextBytes.length; i += 8){
             byte[] block = Arrays.copyOfRange(cipherTextBytes, i, i + 8);
-            byte[] feedback = cipher.doFinal(vector); // generate pseudorandom number by encrypting the initialization vector
+            byte[] feedback;
+            if(tripleDes){
+                byte[] firstStep = cipher.doFinal(vector);
+                cipher.init(Cipher.DECRYPT_MODE,secretKey);
+                byte[] secondStep = cipher.doFinal(firstStep);
+                cipher.init(Cipher.ENCRYPT_MODE,secretKey);
+                feedback= cipher.doFinal(secondStep);
+            }else{
+                feedback = cipher.doFinal(vector);
+            }
+
             byte[] plainTextBlock = new byte[block.length];
             for (int j = 0; j < plainTextBlock.length; j++){
                 // block of plain text
                 plainTextBlock[j] = (byte) (block[j] ^ feedback[j]); // cipher text xored with the pseudorandom
             }
-            vector = Arrays.copyOf(feedback, feedback.length); //  update iv with current pseudorandom number
+            vector = Arrays.copyOf(block, block.length); //  update iv with current pseudorandom number
             decrypted[counter] = plainTextBlock; // fill out the plain text bytes
             counter++;
         }
+        System.out.println("ciphertext bytes"+Arrays.toString(convert2Dto1DArray(decrypted)));
         writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), "cfb_decrypt_text.txt");
     }
 }

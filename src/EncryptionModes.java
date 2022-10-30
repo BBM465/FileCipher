@@ -1,22 +1,18 @@
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EncryptionModes {
-    private final Key key;
     private final byte[] input;
 
     public EncryptionModes(byte[] input, Key key) {
         this.input = input;
-        this.key = key;
     }
 
     public byte[] GetBytesOfCipherText() {
         return input;
     }
-
 
     public byte[] PaddingToPlainText() {
         List<Byte> inputBytes = convertBytesToList(input);
@@ -36,7 +32,6 @@ public class EncryptionModes {
         }
         return byteArray;
     }
-
 
     public static List<Byte> convertBytesToList(byte[] bytes) {
         final List<Byte> list = new ArrayList<>();
@@ -59,21 +54,15 @@ public class EncryptionModes {
             FileWriter writer = new FileWriter(fileName);
             writer.write(text);
             writer.close();
-            System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {
-            System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
 
     public static byte[] removePadding(byte[] cipherText) {
-        List<Byte> bytes = new ArrayList<Byte>();
+        List<Byte> bytes = new ArrayList<>();
         int i = 0;
-        if(cipherText.length%8 == 0){
-            return  cipherText;
-        }
         while (cipherText[i] != -128) {
-            System.out.println(i);
             bytes.add(cipherText[i]);
             i++;
         }

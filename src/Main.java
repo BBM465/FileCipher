@@ -9,15 +9,15 @@ public class Main {
         byte[] input1 = fileReader1.ReadInputFile();
         Key key1 = fileReader1.ReadKeyFile();
 
-        CTR cbc1 = new CTR(input1, key1);
-        cbc1.EncryptWithDES(true);
+        CFB cbc1 = new CFB(input1, key1);
+        cbc1.EncryptWithDES(false);
 
-        FileReader fileReader = new FileReader( "/Users/imrekosdik/Desktop/Assignment1/src/Key.txt", "/Users/imrekosdik/Desktop/Assignment1/ctr_encrypt_text.txt");
+        FileReader fileReader = new FileReader( "/Users/imrekosdik/Desktop/Assignment1/src/Key.txt", "/Users/imrekosdik/Desktop/Assignment1/cfb_encrypt_text.txt");
         byte[] input = fileReader.ReadInputFile();
         Key key = fileReader.ReadKeyFile();
 
-        CTR cbc = new CTR(input, key);
-        cbc.DecryptWithDES(true);
+        CFB cbc = new CFB(input, key);
+        cbc.DecryptWithDES(false);
 
     }
 }

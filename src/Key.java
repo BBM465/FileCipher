@@ -10,12 +10,8 @@ public class Key {
         return initializationVector;
     }
 
-    public byte[] getKey() {
-        return key;
-    }
-
     public byte[] getNonce(){
-        return nonce;
+        return Arrays.copyOfRange(nonce, 0, 8);
     }
 
     public void setInitializationVector(byte[] initializationVector) {

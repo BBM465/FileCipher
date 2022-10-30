@@ -7,48 +7,49 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class OFB  extends EncryptionModes{
+public class CTR extends EncryptionModes {
     private final byte[] keyBytes;
-    private final byte[] iv;
+    private final byte[] nonce;
 
-    public OFB(byte[] input, Key key) {
+    public CTR(byte[] input, Key key) {
         super(input, key);
         this.keyBytes = key.getKeyBytes();
-        this.iv = key.getInitializationVector();
+        this.nonce= key.getNonce();
     }
 
-    public void EncryptWithDES(Boolean tripleDes) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public void EncryptWithDES(boolean tripleDes) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] plainTextBytes = PaddingToPlainText(); // convert the plaintext into its byte representation and apply padding to the representation
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
         // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        byte[] vector = Arrays.copyOf(iv, 8); // get the initialization vector
         byte[][] encrypted = new byte[plainTextBytes.length / 8][];
         int counter = 0;
+        byte nonceCount=0;
         for (int i = 0; i < plainTextBytes.length; i += 8){
-            byte[] block = Arrays.copyOfRange(plainTextBytes, i, i + 8);
-            byte[] pseudorandomNumber;
-            if (tripleDes){
+            nonce[7]= nonceCount;
+            System.out.println(Arrays.toString(nonce));
+            nonceCount++;
+            byte[] encryptedPart;
+            if(tripleDes){
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                byte[] firstStep = cipher.doFinal(vector);
+                byte[] firstStep = cipher.doFinal(nonce);
                 cipher.init(Cipher.DECRYPT_MODE,secretKey);
                 byte[] secondStep = cipher.doFinal(firstStep);
                 cipher.init(Cipher.ENCRYPT_MODE,secretKey);
-                pseudorandomNumber = cipher.doFinal(secondStep);
+                encryptedPart = cipher.doFinal(secondStep);
+            }else {
+                encryptedPart = cipher.doFinal(nonce);
             }
-            else {
-                pseudorandomNumber = cipher.doFinal(vector); // generate pseudorandom number by encrypting the initialization vector
-            }
-            byte[] encryptedPart = new byte[block.length];
+            byte[] block = Arrays.copyOfRange(plainTextBytes, i, i + 8);
+            byte[] xorBlock = new byte[block.length];
             for (int j = 0; j < block.length; j++){
-                encryptedPart[j] = (byte) (block[j] ^ pseudorandomNumber[j]);
+                xorBlock[j] = (byte) (block[j] ^ encryptedPart[j]);
             }
-            vector = Arrays.copyOf(pseudorandomNumber, pseudorandomNumber.length); // update the iv
-            encrypted[counter] = encryptedPart;
+            encrypted[counter] = xorBlock;
             counter++;
         }
-        try (FileOutputStream stream = new FileOutputStream("ofb_encrypt_text.txt")) {
+        try (FileOutputStream stream = new FileOutputStream("ctr_encrypt_text.txt")) {
             stream.write(convert2Dto1DArray(encrypted));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -61,32 +62,32 @@ public class OFB  extends EncryptionModes{
         // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        byte[] vector = Arrays.copyOf(iv, 8); // get the initialization vector
         byte[][] decrypted = new byte[cipherTextBytes.length / 8][];
         int counter = 0;
+        byte nonceCount=0;
         for (int i = 0; i < cipherTextBytes.length; i += 8){
-            byte[] block = Arrays.copyOfRange(cipherTextBytes, i, i + 8);
-            byte[] pseudorandomNumber;
+            nonce[7]= nonceCount;
+            nonceCount= (byte) (nonceCount+1);
+            byte[] decryptBlock;
             if(tripleDes){
                 cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-                byte[] firstStep = cipher.doFinal(vector);
+                byte[] firstStep = cipher.doFinal(nonce);
                 cipher.init(Cipher.DECRYPT_MODE,secretKey);
                 byte[] secondStep = cipher.doFinal(firstStep);
                 cipher.init(Cipher.ENCRYPT_MODE,secretKey);
-                pseudorandomNumber = cipher.doFinal(secondStep);
+                decryptBlock = cipher.doFinal(secondStep);
             }
             else {
-                pseudorandomNumber = cipher.doFinal(vector); // generate pseudorandom number by encrypting the initialization vector
+                decryptBlock = cipher.doFinal(nonce); //decrypt the current block
             }
-            byte[] plainTextBlock = new byte[block.length];
-            for (int j = 0; j < plainTextBlock.length; j++){
-                // block of plain text
-                plainTextBlock[j] = (byte) (block[j] ^ pseudorandomNumber[j]); // cipher text xored with the pseudorandom
+            byte[] block = Arrays.copyOfRange(cipherTextBytes, i, i + 8);
+            byte[] xorBlock = new byte[block.length];
+            for (int j = 0; j < block.length; j++){
+                xorBlock[j] = (byte) (block[j] ^ decryptBlock[j]);
             }
-            vector = Arrays.copyOf(pseudorandomNumber, pseudorandomNumber.length); //  update iv with current pseudorandom number
-            decrypted[counter] = plainTextBlock; // fill out the plain text bytes
+            decrypted[counter] = xorBlock;
             counter++;
         }
-        writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), "ofb_decrypt_text.txt");
+        writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), "ctr_decrypt_text.txt");
     }
 }

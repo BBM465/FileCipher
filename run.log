@@ -1,0 +1,16 @@
+input_text.txt cbc_encrypt.txt enc DES CBC 123
+cbc_encrypt.txt cbc_decrypt.txt dec DES CBC 81
+input_text.txt cbc_encrypt_3DES.txt enc 3DES CBC 81
+cbc_encrypt_3DES.txt cbc_decrypt_3DES.txt dec 3DES CBC 82
+input_text.txt cfb_encrypt.txt enc DES CFB 79
+cfb_encrypt.txt cfb_decrypt.txt dec DES CFB 79
+input_text.txt cfb_encrypt_3DES.txt enc 3DES CFB 83
+cfb_encrypt_3DES.txt cfb_decrypt_3DES.txt dec 3DES CFB 83
+input_text.txt ctr_encrypt.txt enc DES CTR 82
+ctr_encrypt.txt ctr_decrypt.txt dec DES CTR 80
+input_text.txt ctr_encrypt_3DES.txt enc 3DES CTR 84
+ctr_encrypt_3DES.txt ctr_decrypt_3DES.txt dec 3DES CTR 82
+input_text.txt ofb_encrypt.txt enc DES OFB 79
+ofb_encrypt.txt ofb_decrypt.txt dec DES OFB 80
+input_text.txt ofb_encrypt_3DES.txt enc 3DES OFB 83
+ofb_encrypt_3DES.txt ofb_decrypt_3DES.txt dec 3DES OFB 84

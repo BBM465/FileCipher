@@ -30,6 +30,7 @@ public class CFB extends EncryptionModes {
             byte[] block = Arrays.copyOfRange(plainTextBytes, i, i + 8);
             byte[] feedback;
             if(tripleDes){
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
                 byte[] firstStep = cipher.doFinal(vector);
                 cipher.init(Cipher.DECRYPT_MODE,secretKey);
                 byte[] secondStep = cipher.doFinal(firstStep);
@@ -55,7 +56,6 @@ public class CFB extends EncryptionModes {
 
     public void DecryptWithDES(Boolean tripleDes, String fileName) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] cipherTextBytes = GetBytesOfCipherText(); // convert the ciphertext into its byte representation
-
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
         // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
@@ -67,6 +67,7 @@ public class CFB extends EncryptionModes {
             byte[] block = Arrays.copyOfRange(cipherTextBytes, i, i + 8);
             byte[] feedback;
             if(tripleDes){
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
                 byte[] firstStep = cipher.doFinal(vector);
                 cipher.init(Cipher.DECRYPT_MODE,secretKey);
                 byte[] secondStep = cipher.doFinal(firstStep);

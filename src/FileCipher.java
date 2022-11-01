@@ -52,7 +52,7 @@ public class FileCipher {
                         log += "3DES CTR ";
             }
         }
-        else if (args[1].equals("-d")){
+        else if (args[0].equals("-d")){
             FileReader fileReader = new FileReader(args[7], args[2]);
             Key key = fileReader.ReadKeyFile();
             byte[] input = fileReader.ReadInputFile();
@@ -70,25 +70,25 @@ public class FileCipher {
                     CFB cfb = new CFB(input, key);
                     cfb.DecryptWithDES(!args[5].equals("DES"), args[4]);
                     if (args[5].equals("DES"))
-                        log += "DES CBC ";
+                        log += "DES CFB ";
                     else
-                        log += "3DES CBC ";
+                        log += "3DES CFB ";
                     break;
                 case "OFB":
                     OFB ofb = new OFB(input, key);
                     ofb.DecryptWithDES(!args[5].equals("DES"), args[4]);
                     if (args[5].equals("DES"))
-                        log += "DES CBC ";
+                        log += "DES OFB ";
                     else
-                        log += "3DES CBC ";
+                        log += "3DES OFB ";
                     break;
                 default:
                     CTR ctr = new CTR(input, key);
                     ctr.DecryptWithDES(!args[5].equals("DES"), args[4]);
                     if (args[5].equals("DES"))
-                        log += "DES CBC ";
+                        log += "DES CTR ";
                     else
-                        log += "3DES CBC ";
+                        log += "3DES CTR ";
             }
         }
         Instant end = Instant.now();
@@ -103,4 +103,3 @@ public class FileCipher {
         out.close();
     }
 }
-

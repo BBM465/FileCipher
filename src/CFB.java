@@ -20,7 +20,6 @@ public class CFB extends EncryptionModes {
     public void EncryptWithDES(Boolean tripleDes, String fileName) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] plainTextBytes = PaddingToPlainText(); // convert the plaintext into its byte representation and apply padding to the representation
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
-        System.out.println("plaintext bytes"+Arrays.toString(plainTextBytes));
         // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
@@ -39,7 +38,6 @@ public class CFB extends EncryptionModes {
             }else{
                 feedback = cipher.doFinal(vector);
             }
-
             byte[] encryptedPart = new byte[block.length];
             for (int j = 0; j < block.length; j++){
                 encryptedPart[j] = (byte) (block[j] ^ feedback[j]);
@@ -57,7 +55,7 @@ public class CFB extends EncryptionModes {
 
     public void DecryptWithDES(Boolean tripleDes, String fileName) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         byte[] cipherTextBytes = GetBytesOfCipherText(); // convert the ciphertext into its byte representation
-        System.out.println("ciphertext bytes"+Arrays.toString(cipherTextBytes));
+
         SecretKey secretKey = new SecretKeySpec(keyBytes,"DES"); // create secret key to be used iN DES from the key bytes
         // activate DES cipher with ECB encryption mode
         Cipher cipher = Cipher.getInstance("DES/ECB/NoPadding");
@@ -74,10 +72,10 @@ public class CFB extends EncryptionModes {
                 byte[] secondStep = cipher.doFinal(firstStep);
                 cipher.init(Cipher.ENCRYPT_MODE,secretKey);
                 feedback= cipher.doFinal(secondStep);
-            }else{
+            }else
+            {
                 feedback = cipher.doFinal(vector);
             }
-
             byte[] plainTextBlock = new byte[block.length];
             for (int j = 0; j < plainTextBlock.length; j++){
                 // block of plain text
@@ -87,7 +85,6 @@ public class CFB extends EncryptionModes {
             decrypted[counter] = plainTextBlock; // fill out the plain text bytes
             counter++;
         }
-        System.out.println("ciphertext bytes"+Arrays.toString(convert2Dto1DArray(decrypted)));
         writeToFile(new String(removePadding(convert2Dto1DArray(decrypted)), StandardCharsets.UTF_8), fileName);
     }
 }

@@ -62,7 +62,10 @@ public class EncryptionModes {
     public static byte[] removePadding(byte[] cipherText) {
         List<Byte> bytes = new ArrayList<>();
         int i = 0;
-        while (cipherText[i] != -128) {
+        for(int j=0;j<cipherText.length;j++) {
+            if(cipherText[j] == -128) {
+                break;
+            }
             bytes.add(cipherText[i]);
             i++;
         }
